@@ -5,9 +5,11 @@ import (
 	"net/http"
 	"time"
 
+	repo "github.com/VittorioDeMarzi/Ecommerce-project-Golang-/internal/adapters/postgresql/sqlc"
 	"github.com/VittorioDeMarzi/Ecommerce-project-Golang-/internal/products"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5"
 )
 
 // mount
@@ -32,7 +34,7 @@ func (app *application) mount() http.Handler {
 	})
 		
 	// http.ListenAndServe(":3333", r)
-	productService := products.NewService()
+	productService := products.NewService(repo.New(app.db))
 	productHandler := products.NewHandler(productService)
 	
 	r.Get("/products", productHandler.ListProducts)
@@ -50,7 +52,7 @@ func (app *application) run(h http.Handler) error {
 		IdleTimeout: time.Second * 60,
 		}
 
-	log.Printf("starting server on %s", app.config.addr)
+	log.Printf("Starting server on %s", app.config.addr)
 
 	return srv.ListenAndServe()
 }
@@ -58,6 +60,7 @@ func (app *application) run(h http.Handler) error {
 
 type application struct {
 	config config
+	db *pgx.Conn
 	// logger
 	// db driver
 }
