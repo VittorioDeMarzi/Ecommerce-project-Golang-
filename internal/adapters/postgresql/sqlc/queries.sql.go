@@ -10,9 +10,6 @@ import (
 )
 
 const createOrder = `-- name: CreateOrder :one
-
-
-
 INSERT INTO orders (
     customer_id
 ) VALUES (
@@ -21,32 +18,6 @@ INSERT INTO orders (
 RETURNING id, customer_id, created_at, updated_at
 `
 
-// -- name: CreateProduct :one
-// INSERT INTO products (
-//
-//	name, description, price_in_cents, quantity
-//
-// ) VALUES (
-//
-//	$1, $2, $3, $4
-//
-// )
-// RETURNING *;
-// -- name: UpdateProduct :one
-// UPDATE products
-// SET
-//
-//	name = $2,
-//	description = $3,
-//	price_in_cents = $4,
-//	quantity = $5,
-//	updated_at = NOW()
-//
-// WHERE id = $1
-// RETURNING *;
-// -- name: DeleteProduct :exec
-// DELETE FROM products
-// WHERE id = $1;
 func (q *Queries) CreateOrder(ctx context.Context, customerID int64) (Order, error) {
 	row := q.db.QueryRow(ctx, createOrder, customerID)
 	var i Order
@@ -89,6 +60,63 @@ func (q *Queries) CreateOrderItem(ctx context.Context, arg CreateOrderItemParams
 		&i.ProductID,
 		&i.Quantity,
 		&i.PriceInCents,
+	)
+	return i, err
+}
+
+const decrementProductQuantity = `-- name: DecrementProductQuantity :one
+
+
+
+UPDATE products
+SET quantity   = quantity - $2,
+    updated_at = NOW()
+WHERE id = $1 AND quantity >= $2
+RETURNING id, name, description, price_in_cents, quantity, created_at, updated_at
+`
+
+type DecrementProductQuantityParams struct {
+	ID       int64 `json:"id"`
+	Quantity int32 `json:"quantity"`
+}
+
+// -- name: CreateProduct :one
+// INSERT INTO products (
+//
+//	name, description, price_in_cents, quantity
+//
+// ) VALUES (
+//
+//	$1, $2, $3, $4
+//
+// )
+// RETURNING *;
+// -- name: UpdateProduct :one
+// UPDATE products
+// SET
+//
+//	name = $2,
+//	description = $3,
+//	price_in_cents = $4,
+//	quantity = $5,
+//	updated_at = NOW()
+//
+// WHERE id = $1
+// RETURNING *;
+// -- name: DeleteProduct :exec
+// DELETE FROM products
+// WHERE id = $1;
+func (q *Queries) DecrementProductQuantity(ctx context.Context, arg DecrementProductQuantityParams) (Product, error) {
+	row := q.db.QueryRow(ctx, decrementProductQuantity, arg.ID, arg.Quantity)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.PriceInCents,
+		&i.Quantity,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

@@ -75,6 +75,14 @@ func (s *svc) CreateOrder(ctx context.Context, tempOrder createOrderParams) (rep
 		if err != nil {
 			return repo.Order{}, err
 		}
+
+		_, err = qtx.DecrementProductQuantity(ctx, repo.DecrementProductQuantityParams{
+			ID:       product.ID,
+			Quantity: item.Quantity,
+		})
+		if err != nil {
+			return repo.Order{}, err
+		}
 	}
 
 	err = tx.Commit(ctx)

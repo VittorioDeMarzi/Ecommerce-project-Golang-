@@ -9,6 +9,8 @@ import (
 )
 
 type Querier interface {
+	CreateOrder(ctx context.Context, customerID int64) (Order, error)
+	CreateOrderItem(ctx context.Context, arg CreateOrderItemParams) (OrderItem, error)
 	// -- name: CreateProduct :one
 	// INSERT INTO products (
 	//     name, description, price_in_cents, quantity
@@ -29,8 +31,7 @@ type Querier interface {
 	// -- name: DeleteProduct :exec
 	// DELETE FROM products
 	// WHERE id = $1;
-	CreateOrder(ctx context.Context, customerID int64) (Order, error)
-	CreateOrderItem(ctx context.Context, arg CreateOrderItemParams) (OrderItem, error)
+	DecrementProductQuantity(ctx context.Context, arg DecrementProductQuantityParams) (Product, error)
 	GetProduct(ctx context.Context, id int64) (Product, error)
 	ListProducts(ctx context.Context) ([]Product, error)
 }

@@ -29,6 +29,13 @@ ORDER BY name;
 -- DELETE FROM products
 -- WHERE id = $1;
 
+-- name: DecrementProductQuantity :one
+UPDATE products
+SET quantity   = quantity - $2,
+    updated_at = NOW()
+WHERE id = $1 AND quantity >= $2
+RETURNING *;
+
 -- name: CreateOrder :one
 INSERT INTO orders (
     customer_id
