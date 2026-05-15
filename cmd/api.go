@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	repo "github.com/VittorioDeMarzi/Ecommerce-project-Golang-/internal/adapters/postgresql/sqlc"
@@ -38,6 +39,15 @@ func (app *application) mount() http.Handler {
 	productHandler := products.NewHandler(productService)
 	
 	r.Get("/products", productHandler.ListProducts)
+	r.Get("/products/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+		if err != nil {
+			log.Println("invalid product id")
+			http.Error(w, "Invalid product ID", http.StatusBadRequest)
+			return
+		}
+		productHandler.GetProduct(w, r, id)
+	})
 
 	return r
 	}
