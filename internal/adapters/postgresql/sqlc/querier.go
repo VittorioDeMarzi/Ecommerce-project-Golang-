@@ -9,6 +9,28 @@ import (
 )
 
 type Querier interface {
+	// -- name: CreateProduct :one
+	// INSERT INTO products (
+	//     name, description, price_in_cents, quantity
+	// ) VALUES (
+	//     $1, $2, $3, $4
+	// )
+	// RETURNING *;
+	// -- name: UpdateProduct :one
+	// UPDATE products
+	// SET
+	//     name = $2,
+	//     description = $3,
+	//     price_in_cents = $4,
+	//     quantity = $5,
+	//     updated_at = NOW()
+	// WHERE id = $1
+	// RETURNING *;
+	// -- name: DeleteProduct :exec
+	// DELETE FROM products
+	// WHERE id = $1;
+	CreateOrder(ctx context.Context, customerID int64) (Order, error)
+	CreateOrderItem(ctx context.Context, arg CreateOrderItemParams) (OrderItem, error)
 	GetProduct(ctx context.Context, id int64) (Product, error)
 	ListProducts(ctx context.Context) ([]Product, error)
 }
