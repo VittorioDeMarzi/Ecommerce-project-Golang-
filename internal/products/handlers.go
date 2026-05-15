@@ -3,7 +3,7 @@ package products
 import (
 	"net/http"
 
-	"github.com/VittorioDeMarzi/Ecommerce-project-Golang-/internal/products/json"
+	"github.com/VittorioDeMarzi/Ecommerce-project-Golang-/internal/json"
 )
 
 type handler struct {
